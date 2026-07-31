@@ -12,23 +12,24 @@ const Navbar = () => {
 
   return (
     <>
-    
       <header className="border-b border-gray-200 bg-white">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-8 py-4">
           {/* Logo Container */}
-        <Link to="/"> <div className="flex items-center gap-1">
-            <img
-              src={logoIcon}
-              alt="Blogs Logo Icon"
-              className="h-9 w-auto object-contain"
-            />
-            <img
-              src={logoText}
-              alt="Blogs"
-              className="h-6 w-auto object-contain"
-            />
-          </div></Link>  
-       
+          <Link to="/">
+            {" "}
+            <div className="flex items-center gap-1">
+              <img
+                src={logoIcon}
+                alt="Blogs Logo Icon"
+                className="h-9 w-auto object-contain"
+              />
+              <img
+                src={logoText}
+                alt="Blogs"
+                className="h-6 w-auto object-contain"
+              />
+            </div>
+          </Link>
 
           {/* Right Side (Navigation + Button) */}
           <div className="flex items-center gap-10">
@@ -43,24 +44,30 @@ const Navbar = () => {
                 <li>
                   <NavLink
                     to="/my-blogs"
-                    className="hover:text-[#228bc4] transition-colors"
-                  >
+                    className={navlinkclass}>
                     My Blogs
                   </NavLink>
                 </li>
                 <li>
                   <NavLink
                     to="/contact"
-                    className="hover:text-[#228bc4] transition-colors"
-                  >
+                    className={navlinkclass}>
                     Contact us
                   </NavLink>
                 </li>
+                <li>
+                  <NavLink
+                    to="/chat"
+                    className={navlinkclass}>
+                    chat
+                  </NavLink>
+                </li>
+                
               </ul>
             </nav>
 
             <button className="rounded-md bg-[#0083c9] px-6 py-2.5 text-sm font-semibold text-white hover:bg-sky-600 transition-colors hover:cursor-pointer">
-             <Link to='/login'> Sign In</Link>   
+              <Link to="/login"> Sign In</Link>
             </button>
           </div>
         </div>

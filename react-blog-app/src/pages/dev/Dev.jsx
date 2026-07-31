@@ -97,6 +97,12 @@ function Dev() {
               >
                 Profile
               </Link>
+              <Link
+                to="/chat"
+                className="rounded-lg border p-3 hover:border-[#0083c9] hover:text-[#0083c9]"
+              >
+                chat
+              </Link>
             </div>
           </div>
         </div>
