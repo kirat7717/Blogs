@@ -9,9 +9,8 @@ import { loginSchema } from "../../../validation/authSchema";
 import { loginUser } from "../../../service/authService";
 
 function Login() {
-
   const dispatch = useDispatch();
-    const navigate = useNavigate();
+  const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
     email: "",
@@ -32,52 +31,52 @@ function Login() {
   };
 
   const handleSubmit = async (e) => {
-  e.preventDefault();
+    e.preventDefault();
 
-  setErrors({});
+    setErrors({});
 
-  const result = loginSchema.safeParse(formData);
+    const result = loginSchema.safeParse(formData);
 
-  if (!result.success) {
-    setErrors(result.error.flatten().fieldErrors);
-    return;
-  }
+    if (!result.success) {
+      setErrors(result.error.flatten().fieldErrors);
+      return;
+    }
 
-  try {
-    const response = await loginUser(formData);
+    try {
+      const response = await loginUser(formData);
 
-    const { user, token } = response.data;
+      const { user, token } = response.data;
 
-    // Save token in Local Storage
-    localStorage.setItem("token", token);
+      // Save token in Local Storage
+      localStorage.setItem("token", token);
+      localStorage.setItem("user", JSON.stringify(user));
+      // Update Redux Store
+      dispatch(login({user,token}),
+      );
+      console.log("✅ Dispatched Login");
+      console.log("API User:", user);
+      
+      console.log("User from API:", user);
+      console.log("Login Successful");
+      
 
-    // Update Redux Store
-    dispatch(
-      login({
-        user,
-        token,
-      })
-    );
+      // Navigate to Home Page
+      navigate("/");
+    } catch (error) {
+      console.log("Complete Error:", error);
+      console.log("error.response:", error.response);
+      console.log("error.request:", error.request);
+      console.log("error.message:", error.message);
 
-    console.log("Login Successful");
-
-    // Navigate to Home Page
-    navigate("/");
-  }catch (error) {
-  console.log("Complete Error:", error);
-  console.log("error.response:", error.response);
-  console.log("error.request:", error.request);
-  console.log("error.message:", error.message);
-
-  if (error.response) {
-    alert(error.response.data.message);
-  } else if (error.request) {
-    alert("Server is not responding. Please try again.");
-  } else {
-    alert("Something went wrong.");
-  }
-}
-};
+      if (error.response) {
+        alert(error.response.data.message);
+      } else if (error.request) {
+        alert("Server is not responding. Please try again.");
+      } else {
+        alert("Something went wrong.");
+      }
+    }
+  };
 
   // login ui
   return (
@@ -101,7 +100,7 @@ function Login() {
           </div>
 
           {/* Form Starts */}
-          <form onSubmit = {handleSubmit}>
+          <form onSubmit={handleSubmit}>
             <div>
               <label className="mb-1.5 block text-[13px] font-medium text-gray-700">
                 Email or Username
@@ -169,7 +168,7 @@ function Login() {
           <p className="mt-6 text-center text-[14px] text-gray-600">
             New on our platform?
             <button
-             onClick={() => console.log("Button Clicked")}
+              onClick={() => console.log("Button Clicked")}
               type="button"
               className="ml-1 cursor-pointer font-medium text-[#0083c9] hover:underline">
               Create an account

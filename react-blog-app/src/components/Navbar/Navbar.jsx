@@ -2,6 +2,7 @@ import { Link, NavLink } from "react-router-dom";
 
 import logoIcon from "../../assets/images/logo/logo-icon.svg";
 import logoText from "../../assets/images/logo/logo-text.svg";
+import { useLogout } from "../../hooks/useLogout";
 
 const Navbar = () => {
   const navlinkclass = ({ isActive }) => {
@@ -10,6 +11,7 @@ const Navbar = () => {
       : "text-gray-700 hover:text-[#0083c9] transition-colors";
   };
 
+  const handleLogout =  useLogout()
   return (
     <>
       <header className="border-b border-gray-200 bg-white">
@@ -42,32 +44,30 @@ const Navbar = () => {
                   </NavLink>
                 </li>
                 <li>
-                  <NavLink
-                    to="/my-blogs"
-                    className={navlinkclass}>
+                  <NavLink to="/my-blogs" className={navlinkclass}>
                     My Blogs
                   </NavLink>
                 </li>
                 <li>
-                  <NavLink
-                    to="/contact"
-                    className={navlinkclass}>
+                  <NavLink to="/contact" className={navlinkclass}>
                     Contact us
                   </NavLink>
                 </li>
                 <li>
-                  <NavLink
-                    to="/chat"
-                    className={navlinkclass}>
+                  <NavLink to="/chat" className={navlinkclass}>
                     chat
                   </NavLink>
                 </li>
-                
               </ul>
             </nav>
 
             <button className="rounded-md bg-[#0083c9] px-6 py-2.5 text-sm font-semibold text-white hover:bg-sky-600 transition-colors hover:cursor-pointer">
               <Link to="/login"> Sign In</Link>
+            </button>
+            <button
+              onClick={handleLogout}
+              className="bg-red-500 text-white px-4 py-2 rounded">
+              Logout
             </button>
           </div>
         </div>

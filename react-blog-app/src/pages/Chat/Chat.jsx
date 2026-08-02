@@ -12,8 +12,8 @@ function Chat() {
     fetchOnlineUsers();
   }, []);
   
-  const handleChat = (userId) => {
-    navigate(`/chat/${userId}`);
+  const handleChat = (receiverId ) => {
+    navigate(`/chat/${receiverId }`);
   };
 
   const fetchOnlineUsers = async () => {
