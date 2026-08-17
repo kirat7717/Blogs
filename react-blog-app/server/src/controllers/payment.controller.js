@@ -49,7 +49,7 @@ export const createPayment = async (req, res) => {
       amount: blog.price,
       currency: "inr",
       stripePaymentIntentId: paymentIntent.id,
-      status: paymentIntent.status,
+      status:"pending",
     });
 
     return res.status(200).json({
@@ -68,6 +68,23 @@ export const createPayment = async (req, res) => {
     return res.status(500).json({
       success: false,
       message: "Something went wrong while creating payment.",
+    });
+  }
+};
+
+export const handleStripeWebhook = async (req, res) => {
+  try {
+    console.log("Stripe webhook received");
+
+    return res.status(200).json({
+      received: true,
+    });
+  } catch (error) {
+    console.error("Stripe Webhook Error:", error);
+
+    return res.status(500).json({
+      success: false,
+      message: "Webhook error.",
     });
   }
 };

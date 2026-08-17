@@ -62,11 +62,11 @@
  *             properties:
  *               email:
  *                 type: string
- *                 example: gurleen@example.com
+ *                 example: gurleen.kaur@yopmail.com
  *               password:
  *                 type: string
  *                 format: password
- *                 example: Password@123
+ *                 example: 12345
  *     responses:
  *       200:
  *         description: Login successful

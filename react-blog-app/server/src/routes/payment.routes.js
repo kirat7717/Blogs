@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { createPayment } from "../controllers/payment.controller.js";
+import { createPayment, handleStripeWebhook } from "../controllers/payment.controller.js";
 import { verifyToken } from "../middlewares/verifyToken.js";
 import { authenticateUser } from "../middlewares/authenticateUser.js";
 
@@ -10,5 +10,7 @@ router.post(
   authenticateUser,
   createPayment
 );
+
+router.post('/webhook',handleStripeWebhook)
 
 export default router;
