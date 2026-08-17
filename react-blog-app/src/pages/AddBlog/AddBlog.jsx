@@ -1,82 +1,280 @@
-import React from 'react';
+import React, { useEffect, useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { FaCloudUploadAlt, FaImage, FaTimes } from "react-icons/fa";
+
+import {
+  createBlog,
+  uploadBlogImage,
+} from "../../service/blogService";
+import { addBlogSchema } from "../../validation/blog.schema";
 
 export default function AddBlog() {
+  const navigate = useNavigate();
+  const fileInputRef = useRef(null);
+
+  const [formData, setFormData] = useState({
+    title: "",
+    description: "",
+  });
+
+  const [selectedImage, setSelectedImage] = useState(null);
+  const [previewUrl, setPreviewUrl] = useState("");
+
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+
+  // Create and clean image preview URL
+  useEffect(() => {
+    if (!selectedImage) {
+      setPreviewUrl("");
+      return;
+    }
+
+    const objectUrl = URL.createObjectURL(selectedImage);
+
+    setPreviewUrl(objectUrl);
+
+    return () => {
+      URL.revokeObjectURL(objectUrl);
+    };
+  }, [selectedImage]);
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  const handleImageChange = (e) => {
+    const file = e.target.files?.[0];
+
+    if (!file) return;
+
+    // Basic frontend validation
+    if (!file.type.startsWith("image/")) {
+      setError("Please select a valid image file.");
+      return;
+    }
+
+    // 5 MB limit
+    if (file.size > 5 * 1024 * 1024) {
+      setError("Image size must be less than 5 MB.");
+      return;
+    }
+
+    setError("");
+    setSelectedImage(file);
+  };
+
+  const removeImage = () => {
+    setSelectedImage(null);
+    setPreviewUrl("");
+
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+  };
+
+const handleSubmit = async (e) => {
+  e.preventDefault();
+
+  setError("");
+
+  // Validate title and description before making any API request
+  const result = addBlogSchema.safeParse(formData);
+
+  if (!result.success) {
+    setError(result.error.issues[0].message);
+    return;
+  }
+
+  // Validate image before uploading it
+  if (!selectedImage) {
+    setError("Please upload a blog image.");
+    return;
+  }
+
+  try {
+    setLoading(true);
+
+    // Upload image only after all frontend validation passes
+    const imageResponse = await uploadBlogImage(selectedImage);
+
+    const imageUrl = imageResponse.imageUrl;
+
+    // Create blog using the uploaded image URL
+    await createBlog({
+      title: formData.title,
+      description: formData.description,
+      imageUrl,
+    });
+
+    navigate("/my-blogs");
+  } catch (error) {
+    console.error("Create Blog Error:", error);
+
+    setError(
+      error.response?.data?.message ||
+        "Something went wrong while creating the blog."
+    );
+  } finally {
+    setLoading(false);
+  }
+};
+
   return (
-    <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8 font-sans">
-      <div className="max-w-3xl mx-auto bg-white rounded-lg shadow-sm p-6 sm:p-10">
-        
-        {/* Page Heading */}
-        <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-10">
+    <div className="mx-auto max-w-4xl">
+
+      {/* Heading */}
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold text-gray-900 sm:text-4xl">
           Add Blog
         </h1>
 
-        {/* Form Container */}
-        <div className="space-y-8">
-          
-          {/* Title Field */}
-          <div className="flex flex-col gap-2">
-            <label htmlFor="title" className="text-sm font-semibold text-gray-800">
-              Title
-            </label>
-            <input 
-              type="text" 
-              id="title"
-              placeholder="Write here" 
-              className="w-full px-4 py-3 border border-gray-300 rounded-md text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#0083c9] focus:border-transparent transition-colors"
-            />
-          </div>
+        <p className="mt-2 text-sm text-gray-500">
+          Share your thoughts and ideas with the community.
+        </p>
+      </div>
 
-          {/* Description Field */}
-          <div className="flex flex-col gap-2">
-            <label htmlFor="description" className="text-sm font-semibold text-gray-800">
+      {/* Error */}
+      {error && (
+        <div className="mb-6 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">
+          {error}
+        </div>
+      )}
+
+      {/* Form Card */}
+      <form
+        onSubmit={handleSubmit}
+        className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm sm:p-8"
+      >
+
+        {/* Title */}
+        <div className="mb-6">
+          <label
+            htmlFor="title"
+            className="mb-2 block text-sm font-semibold text-gray-800"
+          >
+            Blog Title
+          </label>
+
+          <input
+            id="title"
+            name="title"
+            type="text"
+            value={formData.title}
+            onChange={handleChange}
+            placeholder="Enter your blog title"
+            className="w-full rounded-lg border border-gray-300 px-4 py-3 text-sm text-gray-900 outline-none transition focus:border-[#0083c9] focus:ring-2 focus:ring-[#0083c9]/20"
+          />
+        </div>
+
+        {/* Description */}
+        <div className="mb-6">
+          <div className="mb-2 flex items-center justify-between">
+            <label
+              htmlFor="description"
+              className="block text-sm font-semibold text-gray-800"
+            >
               Description
             </label>
-            <textarea 
-              id="description"
-              rows={6}
-              placeholder="Write here" 
-              className="w-full px-4 py-3 border border-gray-300 rounded-md text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#0083c9] focus:border-transparent transition-colors resize-y"
-            />
-            <div className="flex justify-end">
-              <span className="text-xs text-gray-400 font-medium">max 1000 words</span>
-            </div>
+
+            <span className="text-xs text-gray-400">
+              {formData.description.length} / 1000
+            </span>
           </div>
 
-          {/* Image Upload Section */}
-          <div className="flex flex-col gap-2">
-            <label className="text-sm font-semibold text-gray-800">
-              Upload Image
-            </label>
-            <div className="w-full h-72 border-2 border-dashed border-gray-300 bg-gray-50 rounded-lg flex flex-col items-center justify-center transition-colors hover:bg-gray-100 cursor-pointer">
-              {/* Image Icon with Upload Arrow */}
-              <svg 
-                className="w-16 h-16 text-gray-400 mb-4" 
-                fill="none" 
-                stroke="currentColor" 
-                viewBox="0 0 24 24" 
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 11V3m0 0l-3 3m3-3l3 3" />
-              </svg>
-              <span className="text-lg font-medium text-gray-500">
-                Upload here
-              </span>
-            </div>
-          </div>
-
-          {/* Submit Button */}
-          <div className="pt-4">
-            <button 
-              type="button" 
-              className="w-full bg-[#0083c9] hover:bg-[#0070ab] text-white font-semibold py-4 px-6 rounded-md transition-colors text-lg"
-            >
-              Save
-            </button>
-          </div>
-
+          <textarea
+            id="description"
+            name="description"
+            value={formData.description}
+            onChange={handleChange}
+            maxLength={1000}
+            rows={8}
+            placeholder="Write your blog content here..."
+            className="w-full resize-y rounded-lg border border-gray-300 px-4 py-3 text-sm leading-6 text-gray-900 outline-none transition focus:border-[#0083c9] focus:ring-2 focus:ring-[#0083c9]/20"
+          />
         </div>
-      </div>
+
+        {/* Image Upload */}
+        <div className="mb-8">
+          <label className="mb-2 block text-sm font-semibold text-gray-800">
+            Cover Image
+          </label>
+
+          {!previewUrl ? (
+            <div
+              onClick={() => fileInputRef.current?.click()}
+              className="flex min-h-64 cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed border-gray-300 bg-gray-50 px-6 py-10 text-center transition hover:border-[#0083c9] hover:bg-gray-50"
+            >
+              <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-white shadow-sm">
+                <FaCloudUploadAlt
+                  size={30}
+                  className="text-[#0083c9]"
+                />
+              </div>
+
+              <p className="text-sm font-semibold text-gray-700">
+                Click to upload an image
+              </p>
+
+              <p className="mt-1 text-xs text-gray-400">
+                PNG, JPG, JPEG up to 5 MB
+              </p>
+
+              <button
+                type="button"
+                className="mt-5 rounded-md bg-[#0083c9] px-5 py-2 text-sm font-medium text-white transition hover:bg-[#0070ab]"
+              >
+                Choose Image
+              </button>
+            </div>
+          ) : (
+            <div className="relative overflow-hidden rounded-xl border border-gray-200">
+              <img
+                src={previewUrl}
+                alt="Blog preview"
+                className="h-72 w-full object-cover"
+              />
+
+              <button
+                type="button"
+                onClick={removeImage}
+                className="absolute right-3 top-3 flex h-9 w-9 items-center justify-center rounded-full bg-black/60 text-white transition hover:bg-black/80"
+              >
+                <FaTimes size={14} />
+              </button>
+
+              <div className="absolute bottom-0 left-0 right-0 bg-black/60 px-4 py-3">
+                <p className="truncate text-sm text-white">
+                  {selectedImage?.name}
+                </p>
+              </div>
+            </div>
+          )}
+
+          {/* Hidden File Input */}
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/png,image/jpeg,image/jpg"
+            onChange={handleImageChange}
+            className="hidden"
+          />
+        </div>
+
+        {/* Submit */}
+        <button
+          type="submit"
+          disabled={loading}
+          className="w-full rounded-lg bg-[#0083c9] px-6 py-3.5 text-sm font-semibold text-white transition hover:bg-[#0070ab] disabled:cursor-not-allowed disabled:opacity-60"
+        >
+          {loading ? "Publishing..." : "Publish Blog"}
+        </button>
+      </form>
     </div>
   );
 }

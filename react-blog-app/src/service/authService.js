@@ -1,20 +1,22 @@
-import axios from "axios";
+import api from "../api/axios";
 
-export const loginUser = async (credentials) => {
-  const response = await axios.post(
-    "http://localhost:3000/api/v1/user/login",
-    credentials
-  );
+export const registerUser = async (userData) => {
+  const response = await api.post("/user/register", userData);
 
-  return response;
+  return response.data;
 };
 
+export const loginUser = async (credentials) => {
+  const response = await api.post("/user/login", credentials);
+
+  return response.data;
+};
 
 export const logoutUser = async () => {
   const token = localStorage.getItem("token");
 
-  const response = await axios.post(
-    "http://localhost:3000/api/v1/user/logout",
+  const response = await api.post(
+    "/user/logout",
     {},
     {
       headers: {

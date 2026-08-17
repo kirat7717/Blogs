@@ -1,5 +1,6 @@
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
+
 import { logout } from "../store/slices/authSlice";
 import { logoutUser } from "../service/authService";
 
@@ -11,11 +12,17 @@ export const useLogout = () => {
     try {
       await logoutUser();
     } catch (error) {
-      console.error(error);
+      console.error("Logout API Error:", error);
     } finally {
+      // Clear authentication data
       localStorage.removeItem("token");
+      localStorage.removeItem("user");
+
+      // Clear Redux authentication state
       dispatch(logout());
-      navigate("/login");
+
+      // Go to login
+      navigate("/login", { replace: true });
     }
   };
 

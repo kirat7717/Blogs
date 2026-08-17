@@ -5,8 +5,8 @@ import logoIcon from "../../../assets/images/logo/logo-icon.svg";
 import logoText from "../../../assets/images/logo/logo-text.svg";
 
 import { login } from "../../../store/slices/authSlice";
-import { loginSchema } from "../../../validation/authSchema";
 import { loginUser } from "../../../service/authService";
+import { loginSchema } from "../../../validation/auth.schema";
 
 function Login() {
   const dispatch = useDispatch();

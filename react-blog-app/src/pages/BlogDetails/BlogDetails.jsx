@@ -1,173 +1,176 @@
-import React from "react";
-
-import { useParams } from "react-router-dom";
+import React, { useEffect, useState } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import { FiArrowLeft } from "react-icons/fi";
+import {
+  getSingleBlog,
+  getAllBlogs,
+} from "../../service/blogService";
+import { useSelector } from "react-redux";
 import BlogCard from "../../components/BlogCard/BlogCard";
-
 function BlogDetails() {
+  const user = useSelector((state) => state.auth.user);
   const { id } = useParams();
-  console.log(id);
+  const navigate = useNavigate();
 
+  const [blog, setBlog] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [relatedBlogs, setRelatedBlogs] = useState([]);
+
+  
+  useEffect(() => {
+    const fetchBlog = async () => {
+      try {
+        setLoading(true);
+        setError("");
+
+        const response = await getSingleBlog(id);
+
+        setBlog(response.data);
+        const blogsResponse = await getAllBlogs();
+
+        const otherBlogs = blogsResponse.data
+          .filter((item) => item._id !== id)
+          .slice(0, 3);
+
+        setRelatedBlogs(otherBlogs);
+      } catch (error) {
+        console.error("Blog Details Error:", error);
+        setError(
+          error.response?.data?.message || "Failed to fetch blog details.",
+        );
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchBlog();
+  }, [id]);
+
+  if (loading) {
+    return (
+      <div className="py-20 text-center text-gray-500">Loading blog...</div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="mx-auto max-w-7xl px-4 py-20 text-center">
+        <p className="text-red-500">{error}</p>
+      </div>
+    );
+  }
+
+  if (!blog) {
+    return null;
+  }
+
+  // Calculate isOwner HERE, after we are 100% sure 'blog' is loaded and not null
+  const isOwner = user?.id?.toString() === blog.authorId?._id?.toString();
   return (
-    <>
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 font-sans">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
-          {/* --- Main Content Area --- */}
-          <main className="lg:col-span-8">
-            {/* Header Section */}
-            <header className="mb-8">
-              <h1 className="text-3xl md:text-4xl font-extrabold text-gray-900 leading-tight mb-6">
-                Unleashing the Power of Imagination
-              </h1>
+    <div className="mx-auto max-w-7xl px-4 py-12 font-sans sm:px-6 lg:px-8">
+      <div className="grid grid-cols-1 gap-12 lg:grid-cols-12">
+        {/* --- Main Content Area --- */}
+        <main className="lg:col-span-8">
+          {/* --- Circular Back Button --- */}
+          <button
+            type="button"
+            onClick={() => navigate(-1)}
+            title="Go Back"
+            className="mb-8 flex h-10 w-10 items-center justify-center rounded-full bg-gray-100 text-gray-600 transition-all duration-200 hover:bg-gray-200 hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#0083c9] focus:ring-offset-2">
+            <FiArrowLeft size={20} strokeWidth={2.5} />
+          </button>
 
-              {/* Author Info */}
-              <div className="flex items-center space-x-4 text-gray-600 mb-8">
-                <div className="w-12 h-12 rounded-full bg-gray-200 overflow-hidden ">
+          {/* Header Section */}
+          <header className="mb-8">
+            {/* Blog Title */}
+            <h1 className="mb-6 text-3xl font-extrabold leading-tight text-gray-900 md:text-4xl">
+              {blog.title}
+            </h1>
+
+            {/* Author Info & Edit Button Row */}
+            <div className="mb-8 flex items-center justify-between">
+              <div className="flex items-center space-x-4 text-gray-600">
+                {/* Profile Placeholder */}
+                <div className="h-12 w-12 overflow-hidden rounded-full bg-gray-200">
                   <img
                     src="https://placehold.co/100x100?text=Profile"
-                    alt="Jennifer Erien"
-                    className="w-full h-full object-cover"
+                    alt="Profile"
+                    className="h-full w-full object-cover"
                   />
                 </div>
+
                 <div>
                   <p className="text-sm font-semibold text-gray-900">
-                    Written by Jennifer Erien
+                    Written by {blog.authorId?.username || "Unknown Author"}
                   </p>
-                  <div className="flex items-center text-sm space-x-2 mt-0.5">
-                    <span>June 14</span>
+
+                  <div className="mt-0.5 flex items-center space-x-2 text-sm">
+                    <span>
+                      {blog.createdAt
+                        ? new Date(blog.createdAt).toLocaleDateString()
+                        : ""}
+                    </span>
                     <span>&middot;</span>
                     <span>5 min read</span>
                   </div>
                 </div>
               </div>
-            </header>
 
-            {/* Featured Image */}
-            <div className="mb-10 rounded-xl overflow-hidden">
-              <img
-                src="https://placehold.co/800x450?text=Creative+Typewriter"
-                alt="Typewriter with creative text"
-                className="w-full object-cover"
-              />
+              {/* Conditional Edit Button for Owner */}
+              {isOwner && (
+                <button
+                  type="button"
+                  onClick={() => navigate(`/edit-blog/${blog._id}`)}
+                  className="inline-flex items-center gap-2 rounded-md bg-[#0083c9] px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-[#0070ab]">
+                  Edit Blog
+                </button>
+              )}
             </div>
+          </header>
 
-            {/* Blog Content Article - Typography Plugin Removed */}
-            <article className="text-gray-700 leading-relaxed space-y-6 text-base">
-              <p>
-                Creativity is the spark that ignites imagination and transforms
-                ideas into reality. It allows individuals to express themselves
-                uniquely and explore new possibilities, whether in art, design,
-                or problem-solving. Embracing creativity can lead to
-                groundbreaking solutions and inspire others to think outside the
-                box.
-              </p>
-              <p>
-                The Creative Canvas is a platform dedicated to fostering
-                creativity in various fields. It offers tools and resources for
-                artists, designers, and innovators to collaborate, share ideas,
-                and bring their visions to life. This article explores how to
-                enhance your creative journey.
-              </p>
+          {/* Featured Image */}
+          <div className="mb-10 overflow-hidden rounded-xl">
+            <img
+              src={blog.imageUrl}
+              alt={blog.title}
+              className="w-full object-cover"
+            />
+          </div>
 
-              <h2 className="text-2xl font-bold text-gray-900 pt-4 pb-1">
-                Introducing: The Creative Canvas
-              </h2>
-              <p>
-                The Creative Canvas goes beyond traditional design tools. It
-                provides a dynamic environment for users to experiment with
-                colors, shapes, and textures, allowing them to create stunning
-                visuals. The platform encourages exploration and innovation,
-                making it an essential resource for anyone passionate about
-                design.
-              </p>
+          {/* Blog Content */}
+          <article className="space-y-6 text-base leading-relaxed text-gray-700">
+            <p className="whitespace-pre-line">{blog.description}</p>
+          </article>
+        </main>
 
-              <h2 className="text-2xl font-bold text-gray-900 pt-4 pb-1">
-                Benefits of the Creative Canvas
-              </h2>
-              <ol className="space-y-4 list-decimal list-inside font-semibold text-gray-900">
-                <li>
-                  Enhanced Creativity and Innovation:
-                  <p className="font-normal text-gray-700 mt-2 ml-6">
-                    One of the key benefits of the Creative Canvas is its
-                    ability to stimulate creativity. By providing a variety of
-                    tools and resources, users can explore new ideas and push
-                    the boundaries of their imagination.
-                  </p>
-                </li>
-                <li>
-                  Collaboration and Community:
-                  <p className="font-normal text-gray-700 mt-2 ml-6">
-                    The Creative Canvas fosters collaboration among users,
-                    allowing them to share their work and receive feedback. This
-                    community-driven approach helps individuals grow.
-                  </p>
-                </li>
-                <li>
-                  Comprehensive Design Management:
-                  <p className="font-normal text-gray-700 mt-2 ml-6">
-                    The platform enables users to manage their design projects
-                    effectively, ensuring organization and tracking progress
-                    from start to finish.
-                  </p>
-                </li>
-              </ol>
+        {/* --- Sidebar Area --- */}
+        <aside className="lg:col-span-4">
+          <div>
+            <h3 className="mb-6 inline-block border-b-2 border-[#0083c9] pb-1 text-lg font-bold text-gray-900">
+              More Like This
+            </h3>
 
-              <h2 className="text-2xl font-bold text-gray-900 pt-4 pb-1">
-                How the Creative Canvas Inspires Creators?
-              </h2>
-              <ol className="space-y-4 list-decimal list-inside font-semibold text-gray-900">
-                <li>
-                  Fostering Self-Expression and Confidence
-                  <p className="font-normal text-gray-700 mt-2 ml-6">
-                    The Creative Canvas inspires users by providing a space for
-                    self-expression. By experimenting with different design
-                    elements, creators gain confidence in their abilities.
-                  </p>
-                </li>
-                <li>
-                  Encouraging Exploration and Growth
-                  <p className="font-normal text-gray-700 mt-2 ml-6">
-                    The platform not only facilitates design but also promotes
-                    exploration by encouraging users to try new techniques and
-                    expand their creative horizons.
-                  </p>
-                </li>
-              </ol>
-
-              <h2 className="text-2xl font-bold text-gray-900 pt-4 pb-1">
-                In Conclusion
-              </h2>
-              <p>
-                The Creative Canvas is a powerful tool that empowers creators to
-                unleash their imagination. By offering a range of resources and
-                insights, it helps individuals navigate their creative journeys
-                and produce exceptional work.
-              </p>
-              <p>
-                Embracing creativity opens doors to endless possibilities,
-                allowing individuals to make their mark in the world of design.
-              </p>
-            </article>
-          </main>
-
-          {/* --- Sidebar Area --- */}
-          <aside className="lg:col-span-4">
-            {/* Standard div to allow natural document flow and scrolling */}
-            <div>
-              <h3 className="text-lg font-bold text-gray-900 mb-6 border-b-2 border-[#0083c9] inline-block pb-1">
-                More Like This
-              </h3>
-
-              {/* Related Blogs Container */}
-              <div className="flex flex-col gap-6">
-                <BlogCard />
-                <BlogCard />
-                <BlogCard />
-              </div>
+            {/* Related Blogs */}
+            <div className="flex flex-col gap-6">
+              {relatedBlogs.length > 0 ? (
+                relatedBlogs.map((blog) => (
+                  <BlogCard
+                    key={blog._id}
+                    blog={blog}
+                    onNavigate={(blog) => navigate(`/blog/${blog._id}`)}
+                  />
+                ))
+              ) : (
+                <p className="text-sm text-gray-500">
+                  No related blogs available.
+                </p>
+              )}
             </div>
-          </aside>
-        </div>
+          </div>
+        </aside>
       </div>
-    </>
+    </div>
   );
 }
 
