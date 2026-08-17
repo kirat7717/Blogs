@@ -1,0 +1,41 @@
+<!-- <!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>sender</title>
+</head>
+<body>
+
+  <h2>seder</h2>
+<input id="msg" placeholder="Enter message">
+<button id="send">Send</button>
+  <script src="https://cdn.socket.io/4.8.1/socket.io.min.js"></script>
+
+  <script>
+    // Paste USER 2's JWT here
+    const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2YTYyZWJjYzIyMmQ5ODJiM2U0NTMyNDUiLCJpYXQiOjE3ODUzMjM1MzgsImV4cCI6MTc4NTQwOTkzOH0.A8Tj1EbVN2dqGJeU-7Oe_R9bgxB_wtBo9vCKr-S8SiI";
+
+    const socket = io("http://localhost:3000", {
+      auth: {
+        token,
+      },
+    });
+
+    socket.on("connect", () => {
+      console.log("✅ sender Connected");
+      console.log("Socket ID:", socket.id);
+    });
+
+   document.getElementById("send").addEventListener("click", () => {
+  socket.emit("send_message", {
+    receiverId: "6a62ebcc222d982b3e453245",
+    message: document.getElementById("msg").value,
+  });
+});
+    socket.on("disconnect", () => {
+      console.log("❌ Receiver Disconnected");
+    });
+  </script>
+
+</body>
+</html> -->

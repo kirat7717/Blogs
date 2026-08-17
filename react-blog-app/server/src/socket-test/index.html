@@ -1,0 +1,35 @@
+<!-- <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Socket Test</title>
+</head>
+<body>
+
+<h2>Socket.IO Test</h2>
+
+<script src="https://cdn.socket.io/4.8.1/socket.io.min.js"></script>
+
+<script>
+
+    const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2YTYyZWJjYzIyMmQ5ODJiM2U0NTMyNDUiLCJpYXQiOjE3ODUzMjM1MzgsImV4cCI6MTc4NTQwOTkzOH0.A8Tj1EbVN2dqGJeU-7Oe_R9bgxB_wtBo9vCKr-S8SiI";
+
+    const socket = io("http://localhost:3000", {
+        auth: {
+            token
+        }
+    });
+
+    socket.on("connect", () => {
+        console.log("Connected:", socket.id);
+    });
+
+    socket.on("disconnect", () => {
+        console.log("Disconnected");
+    });
+
+</script>
+
+</body>
+</html> -->

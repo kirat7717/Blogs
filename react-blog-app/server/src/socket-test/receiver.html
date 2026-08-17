@@ -1,0 +1,48 @@
+<!-- <!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Receiver</title>
+</head>
+<body>
+
+  <h2>Receiver</h2>
+
+  <script src="https://cdn.socket.io/4.8.1/socket.io.min.js"></script>
+
+  <script>
+    // Paste USER 2's JWT here
+    const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2YTYyZWJjYzIyMmQ5ODJiM2U0NTMyNDciLCJpYXQiOjE3ODUzMjQ5OTMsImV4cCI6MTc4NTQxMTM5M30.JSxI4fDiaWCnN9QIGfPUANr5R2WWlpH8Qc_MHzFBNmU";
+
+    const socket = io("http://localhost:3000", {
+      auth: {
+        token,
+      },
+    });
+
+    socket.on("connect", () => {
+      console.log("✅ Receiver Connected");
+      console.log("Socket ID:", socket.id);
+    });
+
+    socket.on("receive_message", (data) => {
+      console.log("📩 New Message");
+      console.log(data);
+
+      /*
+        Expected Output:
+
+        {
+          senderId: "689fd9...",
+          message: "Hello from User 1 🚀"
+        }
+      */
+    });
+
+    socket.on("disconnect", () => {
+      console.log("❌ Receiver Disconnected");
+    });
+  </script>
+
+</body>
+</html> -->
