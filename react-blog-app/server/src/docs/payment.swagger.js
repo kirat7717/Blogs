@@ -27,7 +27,7 @@
  *               blogId:
  *                 type: string
  *                 description: MongoDB ID of the blog the user wants to purchase
- *                 example: 6a62ebcc222d982b3e453247
+ *                 example: 6a62efb6823bde9458efd3db
  *
  *     responses:
  *       200:

@@ -49,7 +49,7 @@ export const createPayment = async (req, res) => {
       amount: blog.price,
       currency: "inr",
       stripePaymentIntentId: paymentIntent.id,
-      status:"pending",
+      status: "pending",
     });
 
     return res.status(200).json({
@@ -74,17 +74,31 @@ export const createPayment = async (req, res) => {
 
 export const handleStripeWebhook = async (req, res) => {
   try {
-    console.log("Stripe webhook received");
+    const signature = req.headers["stripe-signature"];
+    console.log("signature->",signature);
+    
+    const event = stripe.webhooks.constructEvent(
+      req.body,
+      signature,
+      process.env.STRIPE_WEBHOOK_SECRET
+    );
+     
+     console.log("event obj" , event.data.object);
+     
+    if (event.type === "payment_intent.succeeded") {
+      console.log("Payment succeeded!");
+    }
 
     return res.status(200).json({
-      received: true,
+      success: true,
+      message: "Webhook received",
     });
   } catch (error) {
     console.error("Stripe Webhook Error:", error);
 
-    return res.status(500).json({
+    return res.status(400).json({
       success: false,
-      message: "Webhook error.",
+      message: "Invalid webhook",
     });
   }
 };

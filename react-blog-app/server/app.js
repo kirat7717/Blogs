@@ -14,11 +14,18 @@ import swaggerSpec from "./src/configs/swagger.config.js";
 
 const app = express();
 
+// Keep Stripe webhook body raw for signature verification
+app.use(
+  "/api/payment/webhook",
+  express.raw({ type: "application/json" })
+)
+
 // Middlewares
 // Serve uploaded images from the public folder
 app.use("/public", express.static("public"));
 app.use(morgan("dev"));
 app.use(express.json());
+app.use("/api/payment", paymentRoutes);
 app.use(
   cors({
     origin: "http://localhost:5173",
